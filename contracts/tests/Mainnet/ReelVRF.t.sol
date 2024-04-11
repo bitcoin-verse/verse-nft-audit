@@ -523,7 +523,7 @@ contract TestReelVRF_MAINNET is Test {
 
             uint256 rerollCost = reel.getNextRerollPrice(1);
 
-            if (i == 0) {
+            if (i == 1) {
                 assertEq(
                     rerollCost,
                     0

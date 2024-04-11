@@ -2,8 +2,8 @@
 
 pragma solidity =0.8.23;
 
-import "./CommonVRF.sol";
 import "./ReelNFT.sol";
+import "./CommonVRF.sol";
 
 struct Drawing {
     bool addBadge;
@@ -37,10 +37,6 @@ contract ReelVRF is ReelNFT, CommonVRF {
     uint256 public constant MAX_NFT_COUNT = 10000;
     uint256 public immutable MAX_PUBLIC_MINT;
 
-    uint256[] rerollPrices = new uint256[](
-        MAX_REROLL_COUNT
-    );
-
     modifier whenPublicMintActive() {
         if (isPublicMintingActive == false) {
             revert PublicMintingNotActive();
@@ -52,9 +48,7 @@ contract ReelVRF is ReelNFT, CommonVRF {
         uint256 indexed drawId,
         uint256 indexed astroId,
         uint256 traitNumber,
-        uint256 rolledNumber,
-        uint256 rerollCount,
-        uint256 rerollPrice
+        uint256 rolledNumber
     );
 
     event RerollCostUpdated(
@@ -64,6 +58,13 @@ contract ReelVRF is ReelNFT, CommonVRF {
     event InitialMint(
         uint256 indexed astroId,
         uint256[] numbers
+    );
+
+    event RerollRequested(
+        uint256 indexed astroId,
+        uint256 indexed traitId,
+        uint256 rerollCount,
+        uint256 rerollPrice
     );
 
     event RerollDone(
@@ -307,10 +308,31 @@ contract ReelVRF is ReelNFT, CommonVRF {
             );
         }
 
-        uint256 nextCounter = ++rerollCount;
+        _increaseRerollCount(
+            _astroId,
+            rerollCount
+        );
 
-        if (nextCounter < MAX_REROLL_COUNT) {
-            rerollCountPerNft[_astroId] = nextCounter;
+        emit RerollRequested(
+            _astroId,
+            _traitId,
+            rerollCount,
+            rerollPrice
+        );
+    }
+
+    function _increaseRerollCount(
+        uint256 _astroId,
+        uint256 _rerollCount
+    )
+        private
+    {
+        unchecked {
+            ++_rerollCount;
+        }
+
+        if (_rerollCount < MAX_REROLL_COUNT) {
+            rerollCountPerNft[_astroId] = _rerollCount;
         }
     }
 
@@ -484,14 +506,6 @@ contract ReelVRF is ReelNFT, CommonVRF {
             _currentDraw.astroId
         ] = false;
 
-        uint256 rerollCount = rerollCountPerNft[
-            _currentDraw.astroId
-        ] - 1;
-
-        uint256 rerollPrice = rerollPrices[
-            rerollCount
-        ];
-
         emit RerollDone(
             _currentDraw.astroId,
             results[_currentDraw.astroId]
@@ -501,9 +515,7 @@ contract ReelVRF is ReelNFT, CommonVRF {
             _currentDraw.drawId,
             _currentDraw.astroId,
             _currentDraw.traitId,
-            rolledNumber,
-            rerollCount,
-            rerollPrice
+            rolledNumber
         );
     }
 

@@ -522,6 +522,19 @@ contract TestReelVRF_MAINNET is Test {
             );
 
             uint256 rerollCost = reel.getNextRerollPrice(1);
+
+            if (i == 0) {
+                assertEq(
+                    rerollCost,
+                    0
+                );
+            } else {
+                assertGt(
+                    rerollCost,
+                    0
+                );
+            }
+
             console.log(rerollCost, 'rerollCost');
 
             reel.rerollTrait(

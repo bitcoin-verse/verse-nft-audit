@@ -2,8 +2,9 @@
 
 pragma solidity =0.8.23;
 
-import "./helpers/Ownable.sol";
 import "./CommonNFT.sol";
+
+import "./helpers/Ownable.sol";
 import "./helpers/TraitTiers.sol";
 
 error StakedVoyager();
@@ -13,17 +14,20 @@ abstract contract ReelNFT is CommonNFT, TraitTiers, Ownable {
 
     using Strings for uint256;
 
-    uint8 public MAX_REROLL_COUNT = 12;
-    uint8 public constant BADGE_TRAIT_ID = 6;
-    uint8 public constant MAX_TRAIT_TYPES = 7;
-    uint256 public constant MAX_RESULT_INDEX = 1000;
+    uint32 public constant BADGE_TRAIT_ID = 6;
+    uint32 public constant MAX_TRAIT_TYPES = 7;
+    uint32 public constant MAX_REROLL_COUNT = 12;
+    uint32 public constant MAX_RESULT_INDEX = 1000;
 
     uint256 public latestCharacterId;
 
     mapping(uint256 => uint256[]) public results;
-
     mapping(address => bool) public stakingOperator;
     mapping(uint256 => bool) public isVoyagerStaked;
+
+    uint256[] rerollPrices = new uint256[](
+        MAX_REROLL_COUNT
+    );
 
     modifier onlyStakingOperator() {
         if (stakingOperator[msg.sender] == false) {
@@ -89,7 +93,7 @@ abstract contract ReelNFT is CommonNFT, TraitTiers, Ownable {
     function transferFrom(
         address _from,
         address _to,
-        uint256 _tokenId
+        uint256 _voyagerId
     )
         public
         override(
@@ -97,21 +101,21 @@ abstract contract ReelNFT is CommonNFT, TraitTiers, Ownable {
             IERC721
         )
     {
-        if (isVoyagerStaked[_tokenId] == true) {
+        if (isVoyagerStaked[_voyagerId] == true) {
             revert StakedVoyager();
         }
 
         super.transferFrom(
             _from,
             _to,
-            _tokenId
+            _voyagerId
         );
     }
 
     function safeTransferFrom(
         address _from,
         address _to,
-        uint256 _tokenId
+        uint256 _voyagerId
     )
         public
         override(
@@ -119,21 +123,21 @@ abstract contract ReelNFT is CommonNFT, TraitTiers, Ownable {
             IERC721
         )
     {
-        if (isVoyagerStaked[_tokenId] == true) {
+        if (isVoyagerStaked[_voyagerId] == true) {
             revert StakedVoyager();
         }
 
         super.safeTransferFrom(
             _from,
             _to,
-            _tokenId
+            _voyagerId
         );
     }
 
     function safeTransferFrom(
         address _from,
         address _to,
-        uint256 _tokenId,
+        uint256 _voyagerId,
         bytes memory _data
     )
         public
@@ -142,14 +146,14 @@ abstract contract ReelNFT is CommonNFT, TraitTiers, Ownable {
             IERC721
         )
     {
-        if (isVoyagerStaked[_tokenId] == true) {
+        if (isVoyagerStaked[_voyagerId] == true) {
             revert StakedVoyager();
         }
 
         super.safeTransferFrom(
             _from,
             _to,
-            _tokenId,
+            _voyagerId,
             _data
         );
     }

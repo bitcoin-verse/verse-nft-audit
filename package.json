@@ -1,0 +1,18 @@
+{
+    "name": "vrf-contracts",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "foundry-size": "forge build --sizes",
+        "foundry-test": "forge test -vv",
+        "foundry-test-default": "forge test --gas-report -vvv",
+        "foundry-test-reports": "forge test --gas-report > gasreport.ansi -vvv",
+        "foundry-test-polygon": "forge test --match-path contracts/tests/Polygon/*.sol --gas-report -vvv",
+        "foundry-coverage": "forge coverage --report lcov && genhtml lcov.info --branch-coverage --output-dir coverage",
+        "deploy-reel-vrf": "forge script contracts/scripts/Deployer.s.sol:DeployReelVRF --with-gas-price 130000000000 --slow --broadcast --verify --chain-id=137 --rpc-url polygon",
+        "verify-reel-vrf": "forge verify-contract --chain-id=137 0x2D210dc61103fBD9C5Cf9C9b0cD7F264BCf84AeE ReelVRF --watch"
+    },
+    "author": "Vitalik Marincenko",
+    "license": "ISC"
+}
